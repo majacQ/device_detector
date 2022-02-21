@@ -1,18 +1,20 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 describe DeviceDetector::Device do
-
   subject { DeviceDetector::Device.new(user_agent) }
 
-  alias :device :subject
+  alias_method :device, :subject
 
   describe '#name' do
-
     describe 'when models are nested' do
-      let(:user_agent) { 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_1_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Mobile/12B466 [FBDV/iPhone7,2]' }
+      let(:user_agent) do
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 8_1_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Mobile/12B466 [FBDV/iPhone7,2]'
+      end
 
       it 'finds an Apple iPhone 6' do
-        device.name.must_equal 'iPhone 6'
+        value(device.name).must_equal 'iPhone 6'
       end
     end
 
@@ -20,7 +22,7 @@ describe DeviceDetector::Device do
       let(:user_agent) { 'AIRNESS-AIR99/REV 2.2.1/Teleca Q03B1' }
 
       it 'finds an Airness AIR99' do
-        device.name.must_equal 'AIR99'
+        value(device.name).must_equal 'AIR99'
       end
     end
 
@@ -28,19 +30,19 @@ describe DeviceDetector::Device do
       let(:user_agent) { 'UNKNOWN MODEL NAME' }
 
       it 'returns nil' do
-        device.name.must_be_nil
+        value(device.name).must_be_nil
       end
     end
-
   end
 
   describe '#type' do
-
     describe 'when models are nested' do
-      let(:user_agent) { 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_1_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Mobile/12B466 [FBDV/iPhone7,2]' }
+      let(:user_agent) do
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 8_1_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Mobile/12B466 [FBDV/iPhone7,2]'
+      end
 
       it 'finds device of Apple iPhone 6' do
-        device.type.must_equal 'smartphone'
+        value(device.type).must_equal 'smartphone'
       end
     end
 
@@ -48,7 +50,7 @@ describe DeviceDetector::Device do
       let(:user_agent) { 'AIRNESS-AIR99/REV 2.2.1/Teleca Q03B1' }
 
       it 'finds the device of Airness AIR99' do
-        device.type.must_equal 'feature phone'
+        value(device.type).must_equal 'feature phone'
       end
     end
 
@@ -56,96 +58,90 @@ describe DeviceDetector::Device do
       let(:user_agent) { 'UNKNOWN MODEL TYPE' }
 
       it 'returns nil' do
-        device.type.must_be_nil
+        value(device.type).must_be_nil
       end
-
     end
 
     describe 'device not specified in nested block' do
-
-      let(:user_agent) { 'Mozilla/5.0 (Linux; Android 4.4.2; es-us; SAMSUNG SM-G900F Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko)' }
-
-      it 'falls back to top-level device' do
-        device.type.must_equal 'smartphone'
+      let(:user_agent) do
+        'Mozilla/5.0 (Linux; Android 4.4.2; es-us; SAMSUNG SM-G900F Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko)'
       end
 
+      it 'falls back to top-level device' do
+        value(device.type).must_equal 'smartphone'
+      end
     end
-
   end
 
   describe 'concrete device types' do
-
     describe 'mobiles' do
-
-      let(:user_agent) { 'Mozilla/5.0 (Linux; Android 4.4.2; es-us; SAMSUNG SM-G900F Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko)' }
-
-      it 'identifies the device' do
-        device.name.must_equal 'GALAXY S5'
-        device.type.must_equal 'smartphone'
-        device.brand.must_equal 'Samsung'
+      let(:user_agent) do
+        'Mozilla/5.0 (Linux; Android 4.4.2; es-us; SAMSUNG SM-G900F Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko)'
       end
 
+      it 'identifies the device' do
+        value(device.name).must_equal 'Galaxy S5'
+        value(device.type).must_equal 'smartphone'
+        value(device.brand).must_equal 'Samsung'
+      end
     end
 
     describe 'cameras' do
-
-      let(:user_agent) { 'Mozilla/5.0 (Linux; U; Android 4.0; xx-xx; EK-GC100 Build/IMM76D) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30' }
-
-      it 'identifies the device' do
-        device.name.must_equal 'GALAXY Camera'
-        device.type.must_equal 'camera'
-        device.brand.must_equal 'Samsung'
+      let(:user_agent) do
+        'Mozilla/5.0 (Linux; U; Android 4.0; xx-xx; EK-GC100 Build/IMM76D) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30'
       end
 
+      it 'identifies the device' do
+        value(device.name).must_equal 'Galaxy Camera'
+        value(device.type).must_equal 'camera'
+        value(device.brand).must_equal 'Samsung'
+      end
     end
 
     describe 'car browsers' do
-
-      let(:user_agent) { 'Mozilla/5.0 (X11; Linux) AppleWebKit/534.34 (KHTML, like Gecko) QtCarBrowser Safari/534.34' }
-
-      it 'identifies the device' do
-        device.name.must_equal 'Model S'
-        device.type.must_equal 'car browser'
-        device.brand.must_be_nil
+      let(:user_agent) do
+        'Mozilla/5.0 (X11; Linux) AppleWebKit/534.34 (KHTML, like Gecko) QtCarBrowser Safari/534.34'
       end
 
+      it 'identifies the device' do
+        value(device.name).must_equal 'Model S'
+        value(device.type).must_equal 'car browser'
+        value(device.brand).must_equal 'Tesla'
+      end
     end
 
     describe '(gaming) consoles' do
-
       let(:user_agent) { 'Opera/9.30 (Nintendo Wii; U; ; 2047-7;en)' }
 
       it 'identifies the device' do
-        device.name.must_equal 'Wii'
-        device.type.must_equal 'console'
-        device.brand.must_be_nil
+        value(device.name).must_equal 'Wii'
+        value(device.type).must_equal 'console'
+        value(device.brand).must_be_nil
       end
-
     end
 
     describe 'portable media players' do
-
-      let(:user_agent) { 'Mozilla/5.0 (iPod touch; CPU iPhone OS 7_0_6 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B651 Safari/9537.53' }
-
-      it 'identifies the device' do
-        device.name.must_equal 'iPod Touch'
-        device.type.must_equal 'portable media player'
-        device.brand.must_equal 'Apple'
+      let(:user_agent) do
+        'Mozilla/5.0 (iPod touch; CPU iPhone OS 7_0_6 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B651 Safari/9537.53'
       end
 
+      it 'identifies the device' do
+        value(device.name).must_equal 'iPod Touch'
+        value(device.type).must_equal 'portable media player'
+        value(device.brand).must_equal 'Apple'
+      end
     end
 
     describe 'televisions' do
-
-      let(:user_agent) { 'Mozilla/5.0 (Unknown; Linux armv7l) AppleWebKit/537.1+ (KHTML, like Gecko) Safari/537.1+ HbbTV/1.1.1 ( ;LGE ;NetCast 4.0 ;03.10.81 ;1.0M ;)' }
-
-      it 'identifies the device' do
-        device.name.must_equal 'NetCast 4.0'
-        device.type.must_equal 'tv'
-        device.brand.must_equal 'LG'
+      let(:user_agent) do
+        'Mozilla/5.0 (Unknown; Linux armv7l) AppleWebKit/537.1+ (KHTML, like Gecko) Safari/537.1+ HbbTV/1.1.1 ( ;LGE ;NetCast 4.0 ;03.10.81 ;1.0M ;)'
       end
 
+      it 'identifies the device' do
+        value(device.name).must_equal 'NetCast 4.0'
+        value(device.type).must_equal 'tv'
+        value(device.brand).must_equal 'LG'
+      end
     end
   end
-
 end
